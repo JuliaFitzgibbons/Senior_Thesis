@@ -39,11 +39,14 @@ fprintf('%d is Heesterbeck paper general value\n',exp(r/gamma));
 fprintf('%d is Heesterbeck paper small rTG value\n',1+(r/gamma));
 
 %/////////////////////////////// variable  beta and gamma////////////////////////
-changingBetaAndGamma= zeros(3,90);
+ChangingR0 = 1.3; %1.1 : .1: 4.0;
+changingBetaAndGamma= zeros(4,90);
 index = 1;
+maxDiff = 0; %zeros(3,29);
+minDiff = 0; %zeros(3,29);
 for i = .0005:0.00005:.005
     beta = i;
-    gamma = beta/.015;
+    gamma = beta/(ChangingR0 /100);
     [t,y] = ode45('systemofKM',[0 tmax],[S0; I0; R0]);
     yI = y(:,2);
     inflection_idx = find(diff(sign(gradient(gradient(yI)))));
@@ -69,6 +72,13 @@ for i = .0005:0.00005:.005
     changingBetaAndGamma(4,index)= 1+(r/gamma); %from the Heesterbeek paper, where r is exp growth and
     %TG is 1/beta by my calculation
     index = index + 1;
+    
+    if (maxDiff< abs(1+(r/gamma)- ChangingR0))
+        maxDiff = abs(1+(r/gamma)- ChangingR0);
+    end
+    if (minDiff> abs(1+(r/gamma)- ChangingR0))
+        minDiff = abs(1+(r/gamma)- ChangingR0);
+    end
 end
 
 %Figure details
@@ -79,3 +89,4 @@ title('R0 values');
 legend( 'Proposed R0','KM R0(constant 1.5)', 'Heesterbeek R0','Small Heesterbeek R0');
 xlabel('Beta value');
 ylabel('value');
+
